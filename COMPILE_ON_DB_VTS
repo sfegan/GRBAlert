@@ -1,0 +1,1 @@
+MYSQLDIR=/usr/local/bin ZTHREADDIR=/usr/local/veritas/zthread-2.3.2 make

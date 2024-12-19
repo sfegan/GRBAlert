@@ -1,0 +1,79 @@
+# -----------------------------------------------------------------------------
+#
+# Ethernet data logger common makefile definitions
+#
+# Original Author: Stephen Fegan
+# $Author: jperkins $
+# $Date: 2008/12/02 17:10:17 $
+# $Revision: 1.8 $
+# $Tag$
+#
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# COMPILER FLAGS
+# -----------------------------------------------------------------------------
+
+#ifndef VERITASDIR
+VERITASDIR    := /usr/local/veritas
+#endif
+
+COMMONCFLAGS   = -I. -I$(VERITASDIR)/include \
+		 -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -DNOCOSEVENT \
+		 -DNOHDF5
+COMMONLDFLAGS  = -L$(VERITASDIR)/lib
+
+CXX            = g++
+ARCHCFLAGS     = -Wall -g -fpermissive
+LD             = g++
+ARCHLDFLAGS    =
+ARCHSOFLAGS    = -shared
+
+CFLAGS         = $(COMMONCFLAGS) $(ARCHCFLAGS) \
+		 $(MYSQLCFLAGS) $(ZTHREADCFLAGS) $(VDBCFLAGS)
+CXXFLAGS       = $(COMMONCFLAGS) $(ARCHCFLAGS) \
+		 $(MYSQLCFLAGS) $(ZTHREADCFLAGS) $(OMNICFLAGS) $(VDBCFLAGS)
+LDFLAGS        = $(COMMONLDFLAGS) $(ARCHLDFLAGS) \
+		 $(MYSQLLDFLAGS) $(ZTHREADLDFLAGS) $(OMNILDFLAGS) $(VDBLDFLAGS)
+
+# -----------------------------------------------------------------------------
+# VDB FLAGS
+# -----------------------------------------------------------------------------
+
+VDBCFLAGS     := -I$(VERITASDIR)/include/VDB -Dnothreads
+VDBLDFLAGS    := -lVDBnothreads
+
+# -----------------------------------------------------------------------------
+# MYSQL FLAGS
+# -----------------------------------------------------------------------------
+
+ifndef MYSQLDIR
+MYSQLDIR      := /usr/lib/mysql
+endif
+
+MYSQLCFLAGS   := $(shell $(MYSQLDIR)/mysql_config --cflags)
+MYSQLLDFLAGS  := $(shell $(MYSQLDIR)/mysql_config --libs)
+
+# -----------------------------------------------------------------------------
+# ZTHREADS
+# -----------------------------------------------------------------------------
+
+ifndef ZTHREADDIR
+ZTHREADDIR     := $(VERITASDIR)
+endif
+
+ZTHREADCFLAGS  := -I$(ZTHREADDIR)/include
+ZTHREADLDFLAGS := -L$(ZTHREADDIR)/lib -lZThread -lpthread
+
+# -----------------------------------------------------------------------------
+# IDL
+# -----------------------------------------------------------------------------
+
+ifndef OMNIORBDIR
+OMNIORBDIR    := /usr/local
+endif
+
+IDLFLAGS       := -bcxx -Wbh=.h -Wbs=.cpp -Wbd=_dyn.cpp -Wba
+IDL            := $(OMNIORBDIR)/bin/omniidl
+OMNICFLAGS     := -I$(OMNIORBDIR)/include/omniORB4
+OMNILDFLAGS    := -L$(OMNIORBDIR)/lib -lomniDynamic4 -lomniORB4

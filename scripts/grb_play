@@ -1,0 +1,5 @@
+#! /bin/sh
+#
+# Wrapper for the audio playing command
+#
+play /usr/local/veritas/share/grb.ogg

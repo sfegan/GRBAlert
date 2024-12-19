@@ -1,0 +1,81 @@
+#! /bin/sh
+#
+# $(prog)        Start/Stop grb monitor
+#
+# chkconfig: 345 14 86
+# description: GRB monitor
+# processname: grb_monitor
+
+# Source function library.
+. /etc/init.d/functions
+
+# Get config.
+if [ -f /etc/sysconfig/network ]
+then
+    . /etc/sysconfig/network
+else
+    echo $"Networking not configured - exiting"
+    exit 1
+fi
+
+prog="grb_monitor"
+
+# Check that networking is up.
+if [ "$NETWORKING" = "no" ]
+then
+	exit 0
+fi
+
+RETVAL=0
+
+start() {
+        echo -n $"Starting $prog: "
+#	export VDBHOST=db.vts
+	export VDBUSER=readwrite
+	export VDBPW=AmadoScope
+	export LD_LIBRARY_PATH=/usr/local/veritas/zthread-2.3.2/lib
+        daemon /usr/local/veritas/bin/$prog -daemon_lockfile=/var/run/${prog}.lock -logger_filename=/usr/local/veritas/log/${prog}.log -repository_filename=/usr/local/veritas/spool/grb_monitor/grb_repository.dat
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && touch /var/lock/subsys/$prog
+	return $RETVAL
+}
+
+
+stop() {
+        echo -n $"Stopping $prog: "
+        killproc $prog
+        RETVAL=$?
+        echo
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$prog
+	return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	status $prog
+	;;
+  restart|reload)
+	restart
+	;;
+  condrestart)
+	[ -f /var/lock/subsys/$prog ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|reload|condrestart}"
+	exit 1
+esac
+
+exit $?
